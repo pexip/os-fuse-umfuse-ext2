@@ -1,0 +1,63 @@
+fuse-umfuse-ext2 (0.4-1.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Depend on fuse instead of fuse-utils. (Closes: #698122)
+  * debian/control: Remove deprecated DM-Upload-Allowed field.
+
+ -- Ansgar Burchardt <ansgar@debian.org>  Sun, 12 May 2013 15:48:18 +0200
+
+fuse-umfuse-ext2 (0.4-1) unstable; urgency=low
+
+  [ Filippo Giunchedi ]
+  * Add DM-Upload-Allowed field
+
+  [ Ludovico Gardenghi ]
+  * New upstream release
+    + Source code completely changed, now it's a fork of fuse-ext2 by
+      Alper Akcan
+    + Update copyright file accordingly
+    + Resolve old codebase issues (Closes: #562177, #670622)
+  * Update to S-V 3.9.3
+  * Switch to machine-readable copyright file
+  * Update mail address for Ludovico Gardenghi
+  * Add compatibility symlinks (old version used fuseext2, this one uses
+    fuse-ext2)
+
+ -- Ludovico Gardenghi <garden@debian.org>  Sun, 24 Jun 2012 20:58:20 +0200
+
+fuse-umfuse-ext2 (0.3-1) unstable; urgency=low
+
+  [ Ludovico Gardenghi ]
+  * New upstream release
+    + Added support for rename()
+    + Added support for symlink()
+
+  [ Filippo Giunchedi ]
+  * Upgrade to S-V 3.8.0 (add Homepage) 
+  * libumlib0-dev -> libumlib-dev transition 
+  * Fix link to GPLv2 in copyright 
+
+ -- Filippo Giunchedi <filippo@debian.org>  Thu, 26 Jun 2008 14:00:14 +0200
+
+fuse-umfuse-ext2 (0.2-2) unstable; urgency=low
+
+  * switch to CDBS 
+
+ -- Filippo Giunchedi <filippo@debian.org>  Fri, 04 May 2007 14:47:38 +0200
+
+fuse-umfuse-ext2 (0.2-1) unstable; urgency=low
+
+  * new upstream release, manpage added 
+
+ -- Filippo Giunchedi <filippo@debian.org>  Fri, 04 May 2007 01:08:38 +0200
+
+fuse-umfuse-ext2 (0.1-1) unstable; urgency=low
+
+  [ Ludovico Gardenghi ]
+  * Initial release
+
+  [ Guido Trotter ]
+  * Fix build dependencies
+
+ -- Guido Trotter <ultrotter@debian.org>  Wed, 14 Feb 2007 01:49:23 +0000
+
