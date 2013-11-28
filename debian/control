@@ -1,7 +1,8 @@
 Source: fuse-umfuse-ext2
 Priority: optional
-Maintainer: Debian VSquare Team <pkg-vsquare-devel@lists.alioth.debian.org>
-Uploaders: Ludovico Gardenghi <garden@debian.org>, Guido Trotter <ultrotter@debian.org>, Filippo Giunchedi <filippo@debian.org>
+Maintainer: Pexip AS <packaging@pexip.com>
+XSBC-Original-Maintainer: Debian VSquare Team <pkg-vsquare-devel@lists.alioth.debian.org>
+XSBC-Original-Uploaders: Ludovico Gardenghi <garden@debian.org>, Guido Trotter <ultrotter@debian.org>, Filippo Giunchedi <filippo@debian.org>
 Build-Depends: debhelper (>= 5), libumlib-dev, libfuse-dev, e2fslibs-dev, cdbs
 Vcs-Svn: svn://svn.debian.org/pkg-vsquare/fuse-umfuse-ext2/trunk
 Vcs-Browser: http://svn.debian.org/wsvn/pkg-vsquare/fuse-umfuse-ext2/trunk/
