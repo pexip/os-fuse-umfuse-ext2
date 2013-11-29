@@ -1,3 +1,9 @@
+fuse-umfuse-ext2 (0.4-1.1pexip2) unstable; urgency=low
+
+  * debian/control: reinstate dependency on fuse-utils
+
+ -- John-Mark Bell <jmb@pexip.com>  Fri, 29 Nov 2013 23:27:53 +0000
+
 fuse-umfuse-ext2 (0.4-1.1pexip1) unstable; urgency=low
 
   * Prepare Pexip backport
