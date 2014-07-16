@@ -26,11 +26,16 @@ int do_probe (struct extfs_data *opts)
 {
 	errcode_t rc;
 	ext2_filsys e2fs;
+	io_manager manager = unix_io_manager;
 
 	debugf_main("enter");
 
+	if (vmdk_probe(opts->device)) {
+		manager = vmdk_io_manager;
+	}
+
 	rc = ext2fs_open2(opts->device, opts->ext2_options, EXT2_FLAG_RW, 
-			  0, 0, unix_io_manager, &e2fs);
+			  0, 0, manager, &e2fs);
 	if (rc) {
 		debugf_main("Error while trying to open %s (rc=%d)", opts->device, rc);
 		return -1;

@@ -250,4 +250,8 @@ int op_link (const char *source, const char *dest);
 
 int op_rename (const char *source, const char *dest);
 
+/* IO management */
+extern io_manager vmdk_io_manager;
+extern int vmdk_probe (const char *path);
+
 #endif /* FUSEEXT2_H_ */
