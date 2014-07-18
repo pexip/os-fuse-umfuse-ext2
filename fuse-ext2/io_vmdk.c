@@ -41,6 +41,12 @@ struct vmdk_grain_marker {
 	uint32_t size;
 } __attribute__((__packed__));
 
+struct vmdk_modified_grain {
+	struct vmdk_modified_grain *next;
+	uint64_t lba;
+	uint8_t data[0];
+};
+
 struct vmdk_private_data {
 	int magic;
 	int dev;
@@ -61,6 +67,8 @@ struct vmdk_private_data {
 
 	ext2_loff_t gd_entries;
 	uint32_t *grain_directory;
+
+	struct vmdk_modified_grain *change_list;
 };
 
 static struct struct_io_manager struct_vmdk_manager;
@@ -176,6 +184,80 @@ vmdk_parse_footer(struct vmdk_private_data *data)
 	return retval;
 }
 
+static void
+vmdk_destroy_change_list(struct vmdk_private_data *data)
+{
+	struct vmdk_modified_grain *victim;
+
+	while (data->change_list != NULL) {
+		victim = data->change_list;
+		data->change_list = victim->next;
+
+		ext2fs_free_mem(&victim);
+	}
+}
+
+static void
+vmdk_insert_modified_grain(struct vmdk_private_data *data,
+			   struct vmdk_modified_grain *grain)
+{
+	struct vmdk_modified_grain *list = data->change_list;
+	struct vmdk_modified_grain *prev = NULL;
+
+	while (list != NULL && list->lba < grain->lba) {
+		prev = list;
+		list = list->next;
+	}
+
+	if (prev == NULL) {
+		grain->next = data->change_list;
+		data->change_list = grain;
+	} else {
+		grain->next = prev->next;
+		prev->next = grain;
+	}
+}
+
+static errcode_t
+vmdk_create_modified_grain(struct vmdk_private_data *data,
+			   ext2_loff_t lba,
+			   struct vmdk_modified_grain **result)
+{
+	errcode_t retval = 0;
+	struct vmdk_modified_grain *grain;
+
+	retval = ext2fs_get_mem(data->grain_coverage + 
+				sizeof(struct vmdk_modified_grain),
+				&grain);
+	if (retval) {
+		return retval;
+	}
+
+	memset(grain, 0,
+	       data->grain_coverage + sizeof(struct vmdk_modified_grain));
+	grain->lba = lba;
+
+	vmdk_insert_modified_grain(data, grain);
+
+	*result = grain;
+
+	return retval;
+}
+
+static struct vmdk_modified_grain *
+vmdk_find_modified_grain(struct vmdk_modified_grain *list,
+			 ext2_loff_t grain_size, uint64_t lba)
+{
+	while (list != NULL) {
+		if (list->lba <= lba && lba < list->lba + grain_size) {
+			break;
+		}
+		list = list->next;
+	}
+
+	return list;
+}
+
 static errcode_t
 vmdk_read_grain(struct vmdk_private_data *data, ext2_loff_t lba,
 		ext2_loff_t *grain_base)
@@ -183,7 +265,20 @@ vmdk_read_grain(struct vmdk_private_data *data, ext2_loff_t lba,
 	ext2_loff_t pos;
 	unsigned long grainlen = (unsigned long) data->grain_coverage;
 	int retval = 0;
+	const struct vmdk_modified_grain *grain;
 	struct vmdk_grain_marker marker;
+
+	/* Compute grain base from lba */
+	*grain_base = (lba / data->grain_coverage) * data->grain_coverage;
+
+	/* Search change list first */
+	grain = vmdk_find_modified_grain(data->change_list,
+					 data->grain_coverage, lba);
+	if (grain != NULL) {
+		memcpy(data->grain, grain->data, data->grain_coverage);
+		//assert(*grain_base == (ext2_loff_t) grain->lba);
+		return retval;
+	}
 
 	pos = data->grain_directory[lba / data->grain_table_coverage];
 	if (pos <= 1) {
@@ -223,7 +318,27 @@ vmdk_read_grain(struct vmdk_private_data *data, ext2_loff_t lba,
 		return EXT2_ET_BAD_VMDK;
 	}
 
-	*grain_base = (ext2_loff_t) marker.lba * BYTES_PER_SECTOR;
+	//assert(*grain_base == (ext2_loff_t) marker.lba * BYTES_PER_SECTOR);
+
+	return retval;
+}
+
+static errcode_t
+vmdk_write_grain(struct vmdk_private_data *data, ext2_loff_t lba)
+{
+	errcode_t retval = 0;
+	struct vmdk_modified_grain *grain;
+
+	grain = vmdk_find_modified_grain(data->change_list,
+					 data->grain_coverage, lba);
+	if (grain == NULL) {
+		retval = vmdk_create_modified_grain(data, lba, &grain);
+		if (retval) {
+			return retval;
+		}
+	}
+
+	memcpy(grain->data, data->grain, data->grain_coverage);
 
 	return retval;
 }
@@ -297,6 +412,25 @@ vmdk_open(const char *name, int flags, io_channel *channel)
 }
 
 static errcode_t
+vmdk_flush(io_channel channel)
+{
+	struct vmdk_private_data *data;
+	errcode_t retval = 0;
+
+	EXT2_CHECK_MAGIC(channel, EXT2_ET_MAGIC_IO_CHANNEL);
+	data = channel->private_data;
+	EXT2_CHECK_MAGIC(data, EXT2_ET_MAGIC_VMDK_IO_CHANNEL);
+
+	/** \todo reconstruct vmdk */
+
+	fsync(data->dev);
+
+	vmdk_destroy_change_list(data);
+
+	return retval;
+}
+
+static errcode_t
 vmdk_close(io_channel channel)
 {
 	struct vmdk_private_data *data;
@@ -310,7 +444,7 @@ vmdk_close(io_channel channel)
 		return 0;
 	}
 
-	/** \todo Reconstruct vmdk */
+	retval = vmdk_flush(channel);
 
 	if (close(data->dev) < 0) {
 		retval = errno;
@@ -335,23 +469,6 @@ vmdk_set_blksize(io_channel channel, int blksize)
 	channel->block_size = blksize;
 
 	return 0;
-}
-
-static errcode_t
-vmdk_flush(io_channel channel)
-{
-	struct vmdk_private_data *data;
-	errcode_t retval = 0;
-
-	EXT2_CHECK_MAGIC(channel, EXT2_ET_MAGIC_IO_CHANNEL);
-	data = channel->private_data;
-	EXT2_CHECK_MAGIC(data, EXT2_ET_MAGIC_VMDK_IO_CHANNEL);
-
-	/** \todo reconstruct vmdk here? */
-
-	fsync(data->dev);
-
-	return retval;
 }
 
 static errcode_t
@@ -450,7 +567,7 @@ vmdk_write_blk64(io_channel channel, unsigned long long block, int count,
 {
 	struct vmdk_private_data *data;
 	errcode_t retval = 0;
-	ssize_t size, written = 0;
+	ssize_t size, remaining = 0;
 	ext2_loff_t lba;
 	const unsigned char *buf = bufv;
 
@@ -458,15 +575,48 @@ vmdk_write_blk64(io_channel channel, unsigned long long block, int count,
 	data = channel->private_data;
 	EXT2_CHECK_MAGIC(data, EXT2_ET_MAGIC_VMDK_IO_CHANNEL);
 
-	size = (count < 0) ? -count : count * channel->block_size;
+	size = remaining = (count < 0) ? -count : count * channel->block_size;
 	lba = ((ext2_loff_t) block * channel->block_size) + data->offset;
 
-	/** \todo Implement */
+	while (remaining > 0) {
+		ext2_loff_t grain_base, grain_offset, bytes_from_grain;
 
-	if (retval && channel->write_error != NULL) {
-		retval = channel->write_error(channel, block, count, buf,
-					      size, written, retval);
-	}	
+		retval = vmdk_read_grain(data, lba, &grain_base);
+		if (retval) {
+			if (channel->write_error != NULL) {
+				retval = channel->write_error(channel, block,
+							      count, bufv,
+							      size,
+							      size - remaining,
+							      retval);
+			}
+
+			break;
+		}
+
+		grain_offset = lba - grain_base;
+		bytes_from_grain = min(data->grain_coverage - grain_offset,
+				       remaining);
+
+		memcpy(data->grain + grain_offset, buf, bytes_from_grain);
+
+		retval = vmdk_write_grain(data, grain_base);
+		if (retval) {
+			if (channel->write_error != NULL) {
+				retval = channel->write_error(channel, block,
+							      count, bufv,
+							      size,
+							      size - remaining,
+							      retval);
+			}
+
+			break;
+		}
+
+		buf += bytes_from_grain;
+		lba += bytes_from_grain;
+		remaining -= bytes_from_grain;
+	}
 
 	return retval;
 }
