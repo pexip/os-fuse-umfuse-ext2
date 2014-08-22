@@ -156,6 +156,14 @@ AC_CHECK_LIB([ext2fs], [ext2fs_open], [],  [AC_MSG_ERROR([Can't find libext2fs, 
 
 AC_CHECK_LIB([ext2fs], [ext2fs_file_set_size2], [disablefileio=yes], [])
 
+PKG_CHECK_MODULES(check, [check >= 0.9.4], [HAVE_CHECK=yes], [HAVE_CHECK=no])
+AM_CONDITIONAL(HAVE_CHECK, test x$HAVE_CHECK = xyes)
+AC_SUBST(CHECK_CFLAGS)
+AC_SUBST(CHECK_LIBS)
+
+AC_PATH_PROG(VALGRIND_PATH, valgrind, no)
+AM_CONDITIONAL(HAVE_VALGRIND, test ! "x$VALGRIND_PATH" = "xno")
+
 # Check extra parameters
 AC_ARG_ENABLE([debug],
 [  --disable-debug    	  disable noisy debug],
@@ -173,6 +181,18 @@ DEBUG_CMT=
 echo "Enabling debug support by default"
 	AC_DEFINE(ENABLE_DEBUG, 1, [Define to 1 if you want 'debug' support.])
 )
+
+AC_ARG_ENABLE([gcov],
+		AS_HELP_STRING([--enable-gcov],[enable coverage]),
+		enable_gcov=$enableval,
+		enable_gcov=no)
+if test "x$enable_gcov" = "xyes" ; then
+	GCOV_CFLAGS="-O0 -fprofile-arcs -ftest-coverage"
+	GCOV_LIBS=-lgcov
+	AC_SUBST(GCOV_CFLAGS)
+	AC_SUBST(GCOV_LIBS)
+fi
+AM_CONDITIONAL(HAVE_GCOV, test "x$enable_gcov" = "xyes")
 
 AC_ARG_ENABLE([swapfs],
 [  --disable-swapfs    	  disable support of legacy byte-swapped filesystems],
@@ -216,6 +236,7 @@ AM_CONDITIONAL(LINUX, test "$arch" = linux)
 AC_CONFIG_FILES([
 	Makefile
 	fuse-ext2/Makefile
+	tests/Makefile
 ])
 
 AC_OUTPUT
