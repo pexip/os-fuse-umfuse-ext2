@@ -21,10 +21,11 @@ check_PROGRAMS = \
 
 check_io_vmdk_SOURCES = \
 	check_io_vmdk.c \
+	vmdk_harness.c \
 	$(top_srcdir)/fuse-ext2/io_vmdk.c
 check_io_vmdk_CFLAGS = \
-	-Wall @CHECK_CFLAGS@ @GCOV_CFLAGS@
+	-Wall -DUNITTEST @CHECK_CFLAGS@ @GCOV_CFLAGS@
 check_io_vmdk_LDADD = \
-	-lz @CHECK_LIBS@ @GCOV_LIBS@
+	@CHECK_LIBS@ @GCOV_LIBS@
 
 endif

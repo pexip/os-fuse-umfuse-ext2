@@ -5,6 +5,35 @@
 
 #include "fuse-ext2.h"
 
+#ifdef UNITTEST
+  extern errcode_t test_ext2fs_get_mem(unsigned long size, void *ptr);
+  extern errcode_t test_ext2fs_free_mem(void *ptr);
+  extern ext2_loff_t test_ext2fs_llseek(int fd, ext2_loff_t offset, int whence);
+  extern int test_ext2fs_open_file(const char *pathname,
+		  		   int flags, mode_t mode);
+  extern int test_close(int fd);
+  extern ssize_t test_read(int fd, void *buf, size_t count);
+  extern ssize_t test_write(int fd, const void *buf, size_t count);
+  extern int test_fsync(int fd);
+  extern int test_ftruncate(int fd, off_t length);
+  extern int test_compress(Bytef *dest, uLongf *destLen,
+		  	   const Bytef *source, uLong sourceLen);
+  extern int test_uncompress(Bytef *dest, uLongf *destLen,
+		  	     const Bytef *source, uLong sourceLen);
+
+  #define ext2fs_get_mem   test_ext2fs_get_mem
+  #define ext2fs_free_mem  test_ext2fs_free_mem
+  #define ext2fs_llseek    test_ext2fs_llseek
+  #define ext2fs_open_file test_ext2fs_open_file
+  #define close            test_close
+  #define read             test_read
+  #define write            test_write
+  #define fsync            test_fsync
+  #define ftruncate        test_ftruncate
+  #define compress         test_compress
+  #define uncompress       test_uncompress
+#endif
+
 #define EXT2_ET_MAGIC_VMDK_IO_CHANNEL 0x766d6400
 #define EXT2_ET_BAD_VMDK 0x766d6401
 
@@ -64,8 +93,8 @@ struct vmdk_modified_grain {
 
 	ext2_loff_t old_location;
 	ext2_loff_t new_location;
-	uint32_t old_size;
-	uint32_t new_size;
+	ext2_loff_t old_size;
+	ext2_loff_t new_size;
 	uint64_t bytes_following;
 	int gt_follows : 1,
 	    moved      : 1,
@@ -79,8 +108,8 @@ struct vmdk_gap {
 
 	ext2_loff_t orig_location;
 	ext2_loff_t location;
-	uint32_t orig_size;
-	uint32_t size;
+	ext2_loff_t orig_size;
+	ext2_loff_t size;
 };
 
 struct vmdk_private_data {
@@ -93,6 +122,7 @@ struct vmdk_private_data {
 	ext2_loff_t initial_extent;
 	ext2_loff_t max_lba;
 
+	ext2_loff_t data_start;
 	ext2_loff_t grain_coverage;
 	uint8_t *grain;
 	uint8_t *compressed_buf;
@@ -188,6 +218,13 @@ vmdk_parse_footer(struct vmdk_private_data *data)
 	}
 
 	data->max_lba = (ext2_loff_t) (footer.capacity * BYTES_PER_SECTOR);
+
+	/* Compute the location of the first grain in the image */
+	data->data_start = footer.overhead + 1; /* skip overhead and header */
+	if (footer.descriptor_offset > 0) {
+		data->data_start += footer.descriptor_size;
+	}
+	data->data_start *= BYTES_PER_SECTOR; /* convert to bytes */
 
 	data->grain_coverage = footer.grain_size * BYTES_PER_SECTOR;
 	retval = ext2fs_get_mem(data->grain_coverage, &data->grain);
@@ -456,7 +493,7 @@ vmdk_compute_grain_location(struct vmdk_private_data *data,
 
 		/* No previous in-use entry, so must be at 
 		 * the start of the disk */
-		*location = 0;
+		*location = data->data_start;
 		*current_size = CURRENT_SIZE_NEW_GRAIN_TABLE;
 		return retval;
 	}
@@ -486,7 +523,7 @@ vmdk_compute_grain_location(struct vmdk_private_data *data,
 		}
 
 		/* No subsequent entry: insert before grain table */
-		*location = gtpos * BYTES_PER_SECTOR;
+		*location = (gtpos - 1) * BYTES_PER_SECTOR; /* -1 for marker */
 		*current_size = CURRENT_SIZE_NEW_GRAIN;
 		return retval;
 	}
@@ -539,7 +576,7 @@ vmdk_prepare_change_list_for_write(struct vmdk_private_data *data,
 			/* Need a new grain table; flag this */
 			grain->gt_follows = 1;
 
-			if (prev != NULL && prev->gt_follows == 1 && 
+			if (prev != NULL && prev->gt_follows != 0 && 
 			    (prev->lba / data->grain_table_coverage) == 
 			    (grain->lba / data->grain_table_coverage)) {
 				/* Last grain shares this new grain table.
@@ -561,7 +598,7 @@ vmdk_prepare_change_list_for_write(struct vmdk_private_data *data,
 
 		/* If the previous grain will emit a grain table after itself,
 		 * update the total change to take account of this. */
-		if (prev != NULL && prev->gt_follows) {
+		if (prev != NULL && prev->gt_follows != 0) {
 			total_change += data->grain_table_size + 
 					sizeof(struct vmdk_marker);
 		}
@@ -578,39 +615,35 @@ vmdk_prepare_change_list_for_write(struct vmdk_private_data *data,
 
 		/* Update total_change to take account of the new size 
 		 * of this grain */
-		total_change += (grain->new_size - grain->old_size);
+		total_change += grain->new_size - grain->old_size;
 
-		/* Create gap for grain (if necessary) */
-		if (gap_last == NULL ||
-		    gap_last->orig_location != grain->old_location) {
-			if (gap_last != NULL && gap_last->orig_location + 
-			    gap_last->orig_size == grain->old_location) {
-				/* New gap adjacent to existing one: extend */
-				gap_last->orig_size += grain->old_size;
-				gap_last->size += grain->old_size;
+		/* Create new gap for grain (if necessary) */
+		if (gap_last == NULL || gap_last->orig_location + 
+		    gap_last->orig_size != grain->old_location) {
+			struct vmdk_gap *gap;
+
+			retval = ext2fs_get_mem(sizeof(struct vmdk_gap),
+						&gap);
+			if (retval) {
+				goto error;
+			}
+
+			gap->orig_location = gap->location = 
+					grain->old_location;
+			gap->orig_size = gap->size = 0;
+			gap->next = NULL;
+
+			if (gap_last == NULL) {
+				gap_last = gap_list = gap;
 			} else {
-				/* Create new gap */
-				struct vmdk_gap *gap;
-
-				retval = ext2fs_get_mem(sizeof(struct vmdk_gap),
-							&gap);
-				if (retval) {
-					goto error;
-				}
-
-				gap->orig_location = gap->location = 
-						grain->old_location;
-				gap->orig_size = gap->size = grain->old_size;
-				gap->next = NULL;
-	
-				if (gap_last == NULL) {
-					gap_last = gap_list = gap;
-				} else {
-					gap_last->next = gap;
-					gap_last = gap;
-				}
+				gap_last->next = gap;
+				gap_last = gap;
 			}
 		}
+
+		/* Extend gap to reflect grain */
+		gap_last->orig_size += grain->old_size;
+		gap_last->size += grain->old_size;
 
 		prev = grain;
 	}
@@ -623,7 +656,7 @@ vmdk_prepare_change_list_for_write(struct vmdk_private_data *data,
 
 	/* Ensure total_change reflects any new grain table
 	 * created by the final grain. */
-	if (prev != NULL && prev->gt_follows) {
+	if (prev != NULL && prev->gt_follows != 0) {
 		total_change += data->grain_table_size +
 				sizeof(struct vmdk_marker);
 	}
@@ -760,8 +793,13 @@ vmdk_try_move_data(struct vmdk_private_data *data,
 	ext2_loff_t mv = shift + diff;
 	struct vmdk_gap *before, *after;
 
-	if (grain->moved) {
+	if (grain->moved != 0) {
 		return retval;
+	}
+
+	if (grain->gt_follows != 0) {
+		/* Adjust mv to account for new grain table */
+		mv += data->grain_table_size + sizeof(struct vmdk_marker);
 	}
 
 	if (mv == 0 || grain->bytes_following == 0) {
@@ -833,7 +871,7 @@ vmdk_write_grain_to_disk(struct vmdk_private_data *data,
 	static const uint8_t pad[512];
 	errcode_t retval = 0;
 	ssize_t padlen;
-	unsigned long size;
+	unsigned long size = compressBound(data->grain_coverage);
 	struct vmdk_grain_marker marker;
 
 	/* Compress the grain data */
@@ -882,12 +920,20 @@ vmdk_try_write_data(struct vmdk_private_data *data,
 		    struct vmdk_gap *gap_list)
 {
 	struct vmdk_gap *gap;
+	ext2_loff_t size;
 	errcode_t retval = 0;
+
+	/* Compute space required to store grain */
+	size = grain->new_size;
+	if (grain->gt_follows != 0) {
+		/* Allow for trailing grain table */
+		size += data->grain_table_size + sizeof(struct vmdk_marker);
+	}
 
 	/* Search for gap into which grain fits */
 	for (gap = gap_list; gap != NULL; gap = gap->next) {
 		if (grain->new_location >= gap->location) {
-			if (grain->new_location + grain->new_size <= 
+			if (grain->new_location + size <= 
 					gap->location + gap->size) {
 				/* Found it: emit grain */
 				retval = vmdk_write_grain_to_disk(data, grain);
@@ -896,10 +942,10 @@ vmdk_try_write_data(struct vmdk_private_data *data,
 				}
 
 				/* Update gap size/location */
-				gap->size -= grain->new_size;
+				gap->size -= size;
 				if (grain->new_location == gap->location) {
 					gap->location = grain->new_location + 
-							grain->new_size;
+							size;
 				}
 
 				/* Flag that this grain has been written out */
@@ -935,7 +981,7 @@ vmdk_emit_change_list(struct vmdk_private_data *data, struct vmdk_gap *gap_list)
 					return retval;
 				}
 
-				if (grain->moved) {
+				if (grain->moved != 0) {
 					retval = vmdk_try_write_data(data,
 								     grain,
 								     gap_list);
@@ -964,7 +1010,7 @@ vmdk_update_metadata_for_modified_grains(struct vmdk_private_data *data)
 	for (grain = data->change_list; grain != NULL; grain = grain->next) {
 		int gdindex = grain->lba / data->grain_table_coverage;
 
-		if (grain->gt_follows) {
+		if (grain->gt_follows != 0) {
 			struct vmdk_marker gtmarker;
 			ext2_loff_t gtpos = grain->new_location +
 					    grain->new_size;
@@ -1023,7 +1069,8 @@ vmdk_update_metadata_for_modified_grains(struct vmdk_private_data *data)
 }
 
 static void
-vmdk_update_mv_and_grain(struct vmdk_modified_grain **grain,
+vmdk_update_mv_and_grain(struct vmdk_private_data *data,
+			 struct vmdk_modified_grain **grain,
 			 ext2_loff_t *mv)
 {
 	struct vmdk_modified_grain *next = *grain;
@@ -1032,6 +1079,10 @@ vmdk_update_mv_and_grain(struct vmdk_modified_grain **grain,
 	 * Ensure we coalesce adjacent changes. */
 	while (next != NULL && next->old_location == (*grain)->old_location) {
 		*mv += next->new_size - next->old_size;
+		if (next->gt_follows != 0) {
+			*mv += data->grain_table_size +
+			       sizeof(struct vmdk_marker);
+		}
 		next = next->next;
 	}
 	*grain = next;
@@ -1041,13 +1092,18 @@ vmdk_update_mv_and_grain(struct vmdk_modified_grain **grain,
 }
 
 static ext2_loff_t
-vmdk_mv_for_gt(const struct vmdk_modified_grain *grain,
+vmdk_mv_for_gt(struct vmdk_private_data *data,
+	       const struct vmdk_modified_grain *grain,
 	       ext2_loff_t max_lba)
 {
 	ext2_loff_t mv = 0;
 
 	while (grain != NULL && grain->lba < max_lba) {
 		mv += grain->new_size - grain->old_size;
+		if (grain->gt_follows != 0) {
+			mv += data->grain_table_size +
+			      sizeof(struct vmdk_marker);
+		}
 		grain = grain->next;
 	}
 
@@ -1074,7 +1130,7 @@ vmdk_update_metadata(struct vmdk_private_data *data)
 		}
 
 		/* Compute/store new grain table location */
-		gtpos += mv + vmdk_mv_for_gt(grain,
+		gtpos += mv + vmdk_mv_for_gt(data, grain,
 				data->grain_table_coverage * (gdindex + 1));
 		data->grain_directory[gdindex] = gtpos / BYTES_PER_SECTOR;
 
@@ -1100,7 +1156,7 @@ vmdk_update_metadata(struct vmdk_private_data *data)
 
 			/* Update mv and grain, if needed */
 			if (grain != NULL && gpos >= grain->old_location) {
-				vmdk_update_mv_and_grain(&grain, &mv);
+				vmdk_update_mv_and_grain(data, &grain, &mv);
 			}
 
 			gpos += mv;
@@ -1217,6 +1273,12 @@ vmdk_write_change_list(struct vmdk_private_data *data)
 	}
 
 	vmdk_destroy_gap_list(gap_list);
+
+	/* Truncate file to new size */
+	retval = ftruncate(data->dev, file_extent + amount_to_move);
+	if (retval == (ext2_loff_t) -1) {
+		return errno;
+	}
 
 	if (amount_to_move > 0) {
 		/* Change list is backwards (see above), but the
@@ -1339,6 +1401,7 @@ vmdk_close(io_channel channel)
 		retval = errno;
 	}
 
+	ext2fs_free_mem(&data->compressed_buf);
 	ext2fs_free_mem(&data->grain_directory);
 	ext2fs_free_mem(&data->grain_table);
 	ext2fs_free_mem(&data->grain);

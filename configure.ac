@@ -156,7 +156,7 @@ AC_CHECK_LIB([ext2fs], [ext2fs_open], [],  [AC_MSG_ERROR([Can't find libext2fs, 
 
 AC_CHECK_LIB([ext2fs], [ext2fs_file_set_size2], [disablefileio=yes], [])
 
-PKG_CHECK_MODULES(check, [check >= 0.9.4], [HAVE_CHECK=yes], [HAVE_CHECK=no])
+PKG_CHECK_MODULES(CHECK, [check >= 0.9.4], [HAVE_CHECK=yes], [HAVE_CHECK=no])
 AM_CONDITIONAL(HAVE_CHECK, test x$HAVE_CHECK = xyes)
 AC_SUBST(CHECK_CFLAGS)
 AC_SUBST(CHECK_LIBS)
