@@ -81,12 +81,12 @@ LTLIBRARIES = $(mod_LTLIBRARIES)
 umfuseext2_la_LIBADD =
 am__umfuseext2_la_SOURCES_DIST = fuse-ext2.h fuse-ext2.c vnode_hash.c \
 	do_probe.c do_check.c do_fillstatbuf.c do_readinode.c \
-	do_killfilebyinode.c op_init.c op_destroy.c op_access.c \
-	op_fgetattr.c op_getattr.c op_open.c op_read.c op_readdir.c \
-	op_readlink.c op_release.c op_statfs.c op_chown.c op_chmod.c \
-	op_create.c op_flush.c op_fsync.c op_mkdir.c op_rmdir.c \
-	op_unlink.c op_utimens.c op_write.c op_mknod.c op_symlink.c \
-	op_truncate.c op_link.c op_rename.c ext2-fileio.c
+	do_killfilebyinode.c io_vmdk.c op_init.c op_destroy.c \
+	op_access.c op_fgetattr.c op_getattr.c op_open.c op_read.c \
+	op_readdir.c op_readlink.c op_release.c op_statfs.c op_chown.c \
+	op_chmod.c op_create.c op_flush.c op_fsync.c op_mkdir.c \
+	op_rmdir.c op_unlink.c op_utimens.c op_write.c op_mknod.c \
+	op_symlink.c op_truncate.c op_link.c op_rename.c ext2-fileio.c
 @DISABLEFILEIO_FALSE@@LINUX_TRUE@am_umfuseext2_la_OBJECTS =  \
 @DISABLEFILEIO_FALSE@@LINUX_TRUE@	umfuseext2_la-fuse-ext2.lo \
 @DISABLEFILEIO_FALSE@@LINUX_TRUE@	umfuseext2_la-vnode_hash.lo \
@@ -95,6 +95,7 @@ am__umfuseext2_la_SOURCES_DIST = fuse-ext2.h fuse-ext2.c vnode_hash.c \
 @DISABLEFILEIO_FALSE@@LINUX_TRUE@	umfuseext2_la-do_fillstatbuf.lo \
 @DISABLEFILEIO_FALSE@@LINUX_TRUE@	umfuseext2_la-do_readinode.lo \
 @DISABLEFILEIO_FALSE@@LINUX_TRUE@	umfuseext2_la-do_killfilebyinode.lo \
+@DISABLEFILEIO_FALSE@@LINUX_TRUE@	umfuseext2_la-io_vmdk.lo \
 @DISABLEFILEIO_FALSE@@LINUX_TRUE@	umfuseext2_la-op_init.lo \
 @DISABLEFILEIO_FALSE@@LINUX_TRUE@	umfuseext2_la-op_destroy.lo \
 @DISABLEFILEIO_FALSE@@LINUX_TRUE@	umfuseext2_la-op_access.lo \
@@ -130,6 +131,7 @@ am__umfuseext2_la_SOURCES_DIST = fuse-ext2.h fuse-ext2.c vnode_hash.c \
 @DISABLEFILEIO_TRUE@@LINUX_TRUE@	umfuseext2_la-do_fillstatbuf.lo \
 @DISABLEFILEIO_TRUE@@LINUX_TRUE@	umfuseext2_la-do_readinode.lo \
 @DISABLEFILEIO_TRUE@@LINUX_TRUE@	umfuseext2_la-do_killfilebyinode.lo \
+@DISABLEFILEIO_TRUE@@LINUX_TRUE@	umfuseext2_la-io_vmdk.lo \
 @DISABLEFILEIO_TRUE@@LINUX_TRUE@	umfuseext2_la-op_init.lo \
 @DISABLEFILEIO_TRUE@@LINUX_TRUE@	umfuseext2_la-op_destroy.lo \
 @DISABLEFILEIO_TRUE@@LINUX_TRUE@	umfuseext2_la-op_access.lo \
@@ -164,12 +166,12 @@ umfuseext2_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 PROGRAMS = $(bin_PROGRAMS)
 am__fuse_ext2_SOURCES_DIST = fuse-ext2.h fuse-ext2.c vnode_hash.c \
 	do_probe.c do_check.c do_fillstatbuf.c do_readinode.c \
-	do_killfilebyinode.c op_init.c op_destroy.c op_access.c \
-	op_fgetattr.c op_getattr.c op_open.c op_read.c op_readdir.c \
-	op_readlink.c op_release.c op_statfs.c op_chown.c op_chmod.c \
-	op_create.c op_flush.c op_fsync.c op_mkdir.c op_rmdir.c \
-	op_unlink.c op_utimens.c op_write.c op_mknod.c op_symlink.c \
-	op_truncate.c op_link.c op_rename.c ext2-fileio.c
+	do_killfilebyinode.c io_vmdk.c op_init.c op_destroy.c \
+	op_access.c op_fgetattr.c op_getattr.c op_open.c op_read.c \
+	op_readdir.c op_readlink.c op_release.c op_statfs.c op_chown.c \
+	op_chmod.c op_create.c op_flush.c op_fsync.c op_mkdir.c \
+	op_rmdir.c op_unlink.c op_utimens.c op_write.c op_mknod.c \
+	op_symlink.c op_truncate.c op_link.c op_rename.c ext2-fileio.c
 @DISABLEFILEIO_FALSE@am_fuse_ext2_OBJECTS =  \
 @DISABLEFILEIO_FALSE@	fuse_ext2-fuse-ext2.$(OBJEXT) \
 @DISABLEFILEIO_FALSE@	fuse_ext2-vnode_hash.$(OBJEXT) \
@@ -178,6 +180,7 @@ am__fuse_ext2_SOURCES_DIST = fuse-ext2.h fuse-ext2.c vnode_hash.c \
 @DISABLEFILEIO_FALSE@	fuse_ext2-do_fillstatbuf.$(OBJEXT) \
 @DISABLEFILEIO_FALSE@	fuse_ext2-do_readinode.$(OBJEXT) \
 @DISABLEFILEIO_FALSE@	fuse_ext2-do_killfilebyinode.$(OBJEXT) \
+@DISABLEFILEIO_FALSE@	fuse_ext2-io_vmdk.$(OBJEXT) \
 @DISABLEFILEIO_FALSE@	fuse_ext2-op_init.$(OBJEXT) \
 @DISABLEFILEIO_FALSE@	fuse_ext2-op_destroy.$(OBJEXT) \
 @DISABLEFILEIO_FALSE@	fuse_ext2-op_access.$(OBJEXT) \
@@ -213,6 +216,7 @@ am__fuse_ext2_SOURCES_DIST = fuse-ext2.h fuse-ext2.c vnode_hash.c \
 @DISABLEFILEIO_TRUE@	fuse_ext2-do_fillstatbuf.$(OBJEXT) \
 @DISABLEFILEIO_TRUE@	fuse_ext2-do_readinode.$(OBJEXT) \
 @DISABLEFILEIO_TRUE@	fuse_ext2-do_killfilebyinode.$(OBJEXT) \
+@DISABLEFILEIO_TRUE@	fuse_ext2-io_vmdk.$(OBJEXT) \
 @DISABLEFILEIO_TRUE@	fuse_ext2-op_init.$(OBJEXT) \
 @DISABLEFILEIO_TRUE@	fuse_ext2-op_destroy.$(OBJEXT) \
 @DISABLEFILEIO_TRUE@	fuse_ext2-op_access.$(OBJEXT) \
@@ -247,7 +251,8 @@ fuse_ext2_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_fuse_ext2_probe_OBJECTS =  \
 	fuse_ext2_probe-fuse-ext2.probe.$(OBJEXT) \
-	fuse_ext2_probe-do_probe.$(OBJEXT)
+	fuse_ext2_probe-do_probe.$(OBJEXT) \
+	fuse_ext2_probe-io_vmdk.$(OBJEXT)
 fuse_ext2_probe_OBJECTS = $(am_fuse_ext2_probe_OBJECTS)
 @LINUX_TRUE@fuse_ext2_probe_DEPENDENCIES = $(am__DEPENDENCIES_1)
 fuse_ext2_probe_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -286,6 +291,8 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CHECK_CFLAGS = @CHECK_CFLAGS@
+CHECK_LIBS = @CHECK_LIBS@
 CHMOD = @CHMOD@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
@@ -305,6 +312,8 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+GCOV_CFLAGS = @GCOV_CFLAGS@
+GCOV_LIBS = @GCOV_LIBS@
 GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -336,11 +345,15 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PKG_CONFIG = @PKG_CONFIG@
+PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
+PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
+VALGRIND_PATH = @VALGRIND_PATH@
 VERSION = @VERSION@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
@@ -417,7 +430,8 @@ DEVELFLAGS =
 fuse_ext2_probe_SOURCES = \
 	fuse-ext2.h \
 	fuse-ext2.probe.c \
-	do_probe.c
+	do_probe.c \
+	io_vmdk.c
 
 
 #if DARWIN
@@ -445,7 +459,7 @@ fuse_ext2_probe_SOURCES = \
 
 @LINUX_TRUE@fuse_ext2_probe_LDADD = \
 @LINUX_TRUE@	-L/usr/local/lib \
-@LINUX_TRUE@	-lfuse \
+@LINUX_TRUE@	-lfuse -lz \
 @LINUX_TRUE@	$(LINUXE2LIBS)
 
 @DISABLEFILEIO_FALSE@fuse_ext2_SOURCES = \
@@ -457,6 +471,7 @@ fuse_ext2_probe_SOURCES = \
 @DISABLEFILEIO_FALSE@	do_fillstatbuf.c \
 @DISABLEFILEIO_FALSE@	do_readinode.c \
 @DISABLEFILEIO_FALSE@	do_killfilebyinode.c \
+@DISABLEFILEIO_FALSE@	io_vmdk.c \
 @DISABLEFILEIO_FALSE@	op_init.c \
 @DISABLEFILEIO_FALSE@	op_destroy.c \
 @DISABLEFILEIO_FALSE@	op_access.c \
@@ -494,6 +509,7 @@ fuse_ext2_probe_SOURCES = \
 @DISABLEFILEIO_TRUE@	do_fillstatbuf.c \
 @DISABLEFILEIO_TRUE@	do_readinode.c \
 @DISABLEFILEIO_TRUE@	do_killfilebyinode.c \
+@DISABLEFILEIO_TRUE@	io_vmdk.c \
 @DISABLEFILEIO_TRUE@	op_init.c \
 @DISABLEFILEIO_TRUE@	op_destroy.c \
 @DISABLEFILEIO_TRUE@	op_access.c \
@@ -530,6 +546,7 @@ fuse_ext2_probe_SOURCES = \
 @DISABLEFILEIO_FALSE@@LINUX_TRUE@	do_fillstatbuf.c \
 @DISABLEFILEIO_FALSE@@LINUX_TRUE@	do_readinode.c \
 @DISABLEFILEIO_FALSE@@LINUX_TRUE@	do_killfilebyinode.c \
+@DISABLEFILEIO_FALSE@@LINUX_TRUE@	io_vmdk.c \
 @DISABLEFILEIO_FALSE@@LINUX_TRUE@	op_init.c \
 @DISABLEFILEIO_FALSE@@LINUX_TRUE@	op_destroy.c \
 @DISABLEFILEIO_FALSE@@LINUX_TRUE@	op_access.c \
@@ -567,6 +584,7 @@ fuse_ext2_probe_SOURCES = \
 @DISABLEFILEIO_TRUE@@LINUX_TRUE@	do_fillstatbuf.c \
 @DISABLEFILEIO_TRUE@@LINUX_TRUE@	do_readinode.c \
 @DISABLEFILEIO_TRUE@@LINUX_TRUE@	do_killfilebyinode.c \
+@DISABLEFILEIO_TRUE@@LINUX_TRUE@	io_vmdk.c \
 @DISABLEFILEIO_TRUE@@LINUX_TRUE@	op_init.c \
 @DISABLEFILEIO_TRUE@@LINUX_TRUE@	op_destroy.c \
 @DISABLEFILEIO_TRUE@@LINUX_TRUE@	op_access.c \
@@ -648,7 +666,7 @@ fuse_ext2_CFLAGS = \
 @LINUX_TRUE@fuse_ext2_LDADD = \
 @LINUX_TRUE@	$(LINUXE2LIBS) \
 @LINUX_TRUE@	-L/usr/local/lib \
-@LINUX_TRUE@	-lfuse 
+@LINUX_TRUE@	-lfuse -lz
 
 dist_man1_MANS = fuse-ext2.1
 all: all-am
@@ -781,6 +799,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fuse_ext2-do_readinode.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fuse_ext2-ext2-fileio.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fuse_ext2-fuse-ext2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fuse_ext2-io_vmdk.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fuse_ext2-op_access.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fuse_ext2-op_chmod.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fuse_ext2-op_chown.Po@am__quote@
@@ -810,6 +829,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fuse_ext2-vnode_hash.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fuse_ext2_probe-do_probe.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fuse_ext2_probe-fuse-ext2.probe.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fuse_ext2_probe-io_vmdk.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/umfuseext2_la-do_check.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/umfuseext2_la-do_fillstatbuf.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/umfuseext2_la-do_killfilebyinode.Plo@am__quote@
@@ -817,6 +837,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/umfuseext2_la-do_readinode.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/umfuseext2_la-ext2-fileio.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/umfuseext2_la-fuse-ext2.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/umfuseext2_la-io_vmdk.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/umfuseext2_la-op_access.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/umfuseext2_la-op_chmod.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/umfuseext2_la-op_chown.Plo@am__quote@
@@ -914,6 +935,13 @@ umfuseext2_la-do_killfilebyinode.lo: do_killfilebyinode.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='do_killfilebyinode.c' object='umfuseext2_la-do_killfilebyinode.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(umfuseext2_la_CFLAGS) $(CFLAGS) -c -o umfuseext2_la-do_killfilebyinode.lo `test -f 'do_killfilebyinode.c' || echo '$(srcdir)/'`do_killfilebyinode.c
+
+umfuseext2_la-io_vmdk.lo: io_vmdk.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(umfuseext2_la_CFLAGS) $(CFLAGS) -MT umfuseext2_la-io_vmdk.lo -MD -MP -MF $(DEPDIR)/umfuseext2_la-io_vmdk.Tpo -c -o umfuseext2_la-io_vmdk.lo `test -f 'io_vmdk.c' || echo '$(srcdir)/'`io_vmdk.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/umfuseext2_la-io_vmdk.Tpo $(DEPDIR)/umfuseext2_la-io_vmdk.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='io_vmdk.c' object='umfuseext2_la-io_vmdk.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(umfuseext2_la_CFLAGS) $(CFLAGS) -c -o umfuseext2_la-io_vmdk.lo `test -f 'io_vmdk.c' || echo '$(srcdir)/'`io_vmdk.c
 
 umfuseext2_la-op_init.lo: op_init.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(umfuseext2_la_CFLAGS) $(CFLAGS) -MT umfuseext2_la-op_init.lo -MD -MP -MF $(DEPDIR)/umfuseext2_la-op_init.Tpo -c -o umfuseext2_la-op_init.lo `test -f 'op_init.c' || echo '$(srcdir)/'`op_init.c
@@ -1201,6 +1229,20 @@ fuse_ext2-do_killfilebyinode.obj: do_killfilebyinode.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='do_killfilebyinode.c' object='fuse_ext2-do_killfilebyinode.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fuse_ext2_CFLAGS) $(CFLAGS) -c -o fuse_ext2-do_killfilebyinode.obj `if test -f 'do_killfilebyinode.c'; then $(CYGPATH_W) 'do_killfilebyinode.c'; else $(CYGPATH_W) '$(srcdir)/do_killfilebyinode.c'; fi`
+
+fuse_ext2-io_vmdk.o: io_vmdk.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fuse_ext2_CFLAGS) $(CFLAGS) -MT fuse_ext2-io_vmdk.o -MD -MP -MF $(DEPDIR)/fuse_ext2-io_vmdk.Tpo -c -o fuse_ext2-io_vmdk.o `test -f 'io_vmdk.c' || echo '$(srcdir)/'`io_vmdk.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/fuse_ext2-io_vmdk.Tpo $(DEPDIR)/fuse_ext2-io_vmdk.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='io_vmdk.c' object='fuse_ext2-io_vmdk.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fuse_ext2_CFLAGS) $(CFLAGS) -c -o fuse_ext2-io_vmdk.o `test -f 'io_vmdk.c' || echo '$(srcdir)/'`io_vmdk.c
+
+fuse_ext2-io_vmdk.obj: io_vmdk.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fuse_ext2_CFLAGS) $(CFLAGS) -MT fuse_ext2-io_vmdk.obj -MD -MP -MF $(DEPDIR)/fuse_ext2-io_vmdk.Tpo -c -o fuse_ext2-io_vmdk.obj `if test -f 'io_vmdk.c'; then $(CYGPATH_W) 'io_vmdk.c'; else $(CYGPATH_W) '$(srcdir)/io_vmdk.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/fuse_ext2-io_vmdk.Tpo $(DEPDIR)/fuse_ext2-io_vmdk.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='io_vmdk.c' object='fuse_ext2-io_vmdk.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fuse_ext2_CFLAGS) $(CFLAGS) -c -o fuse_ext2-io_vmdk.obj `if test -f 'io_vmdk.c'; then $(CYGPATH_W) 'io_vmdk.c'; else $(CYGPATH_W) '$(srcdir)/io_vmdk.c'; fi`
 
 fuse_ext2-op_init.o: op_init.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fuse_ext2_CFLAGS) $(CFLAGS) -MT fuse_ext2-op_init.o -MD -MP -MF $(DEPDIR)/fuse_ext2-op_init.Tpo -c -o fuse_ext2-op_init.o `test -f 'op_init.c' || echo '$(srcdir)/'`op_init.c
@@ -1607,6 +1649,20 @@ fuse_ext2_probe-do_probe.obj: do_probe.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='do_probe.c' object='fuse_ext2_probe-do_probe.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fuse_ext2_probe_CFLAGS) $(CFLAGS) -c -o fuse_ext2_probe-do_probe.obj `if test -f 'do_probe.c'; then $(CYGPATH_W) 'do_probe.c'; else $(CYGPATH_W) '$(srcdir)/do_probe.c'; fi`
+
+fuse_ext2_probe-io_vmdk.o: io_vmdk.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fuse_ext2_probe_CFLAGS) $(CFLAGS) -MT fuse_ext2_probe-io_vmdk.o -MD -MP -MF $(DEPDIR)/fuse_ext2_probe-io_vmdk.Tpo -c -o fuse_ext2_probe-io_vmdk.o `test -f 'io_vmdk.c' || echo '$(srcdir)/'`io_vmdk.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/fuse_ext2_probe-io_vmdk.Tpo $(DEPDIR)/fuse_ext2_probe-io_vmdk.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='io_vmdk.c' object='fuse_ext2_probe-io_vmdk.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fuse_ext2_probe_CFLAGS) $(CFLAGS) -c -o fuse_ext2_probe-io_vmdk.o `test -f 'io_vmdk.c' || echo '$(srcdir)/'`io_vmdk.c
+
+fuse_ext2_probe-io_vmdk.obj: io_vmdk.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fuse_ext2_probe_CFLAGS) $(CFLAGS) -MT fuse_ext2_probe-io_vmdk.obj -MD -MP -MF $(DEPDIR)/fuse_ext2_probe-io_vmdk.Tpo -c -o fuse_ext2_probe-io_vmdk.obj `if test -f 'io_vmdk.c'; then $(CYGPATH_W) 'io_vmdk.c'; else $(CYGPATH_W) '$(srcdir)/io_vmdk.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/fuse_ext2_probe-io_vmdk.Tpo $(DEPDIR)/fuse_ext2_probe-io_vmdk.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='io_vmdk.c' object='fuse_ext2_probe-io_vmdk.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(fuse_ext2_probe_CFLAGS) $(CFLAGS) -c -o fuse_ext2_probe-io_vmdk.obj `if test -f 'io_vmdk.c'; then $(CYGPATH_W) 'io_vmdk.c'; else $(CYGPATH_W) '$(srcdir)/io_vmdk.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
