@@ -1,3 +1,14 @@
+fuse-umfuse-ext2 (0.4+pexip1-1) pexip; urgency=low
+
+  * Package Pexip fork.
+  * debian/patches/series, debian/patches/01-add-offset-support.patch:
+    Drop patch; merged upstream.
+  * debian/control: Build-Depend on zlib, check, pkg-config
+  * debian/rules: Specify check target
+  * debian/source/format: Revert to format 1.0.
+
+ -- John-Mark Bell <jmb@pexip.com>  Sat, 06 Sep 2014 22:08:05 +0100
+
 fuse-umfuse-ext2 (0.4-1.1pexip2) unstable; urgency=low
 
   * debian/control: reinstate dependency on fuse-utils
