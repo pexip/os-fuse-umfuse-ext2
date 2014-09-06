@@ -29,7 +29,8 @@ int do_probe (struct extfs_data *opts)
 
 	debugf_main("enter");
 
-	rc = ext2fs_open(opts->device, EXT2_FLAG_RW, 0, 0, unix_io_manager, &e2fs);
+	rc = ext2fs_open2(opts->device, opts->ext2_options, EXT2_FLAG_RW, 
+			  0, 0, unix_io_manager, &e2fs);
 	if (rc) {
 		debugf_main("Error while trying to open %s (rc=%d)", opts->device, rc);
 		return -1;

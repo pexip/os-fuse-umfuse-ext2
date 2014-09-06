@@ -28,7 +28,7 @@ void * op_init (struct fuse_conn_info *conn)
 
 	debugf("enter %s", e2data->device);
 
-	rc = ext2fs_open(e2data->device, 
+	rc = ext2fs_open2(e2data->device, e2data->ext2_options,
 			(e2data->readonly) ? 0 : EXT2_FLAG_RW,
 			0, 0, unix_io_manager, &e2data->e2fs);
 	if (rc) {

@@ -82,6 +82,7 @@ struct extfs_data {
 	char *options;
 	char *device;
 	char *volname;
+	char *ext2_options;
 	ext2_filsys e2fs;
 };
 
