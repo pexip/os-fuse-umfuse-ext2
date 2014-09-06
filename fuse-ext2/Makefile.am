@@ -30,7 +30,8 @@ endif
 fuse_ext2_probe_SOURCES =	\
 	fuse-ext2.h \
 	fuse-ext2.probe.c \
-	do_probe.c
+	do_probe.c \
+	io_vmdk.c
 
 #if DARWIN
 #fuse_ext2_probe_CFLAGS =			\
@@ -58,7 +59,7 @@ fuse_ext2_probe_CFLAGS = 	\
 
 fuse_ext2_probe_LDADD = \
 	-L/usr/local/lib \
-	-lfuse \
+	-lfuse -lz \
 	$(LINUXE2LIBS)
 endif
 
@@ -72,6 +73,7 @@ fuse_ext2_SOURCES =	\
 	do_fillstatbuf.c \
 	do_readinode.c \
 	do_killfilebyinode.c \
+	io_vmdk.c \
 	op_init.c \
 	op_destroy.c \
 	op_access.c \
@@ -108,6 +110,7 @@ fuse_ext2_SOURCES = \
 	do_fillstatbuf.c \
 	do_readinode.c \
 	do_killfilebyinode.c \
+	io_vmdk.c \
 	op_init.c \
 	op_destroy.c \
 	op_access.c \
@@ -148,6 +151,7 @@ umfuseext2_la_SOURCES = \
 	do_fillstatbuf.c \
 	do_readinode.c \
 	do_killfilebyinode.c \
+	io_vmdk.c \
 	op_init.c \
 	op_destroy.c \
 	op_access.c \
@@ -184,6 +188,7 @@ umfuseext2_la_SOURCES = \
 	do_fillstatbuf.c \
 	do_readinode.c \
 	do_killfilebyinode.c \
+	io_vmdk.c \
 	op_init.c \
 	op_destroy.c \
 	op_access.c \
@@ -268,7 +273,7 @@ if LINUX
 fuse_ext2_LDADD =				\
 	$(LINUXE2LIBS) \
 	-L/usr/local/lib \
-	-lfuse 
+	-lfuse -lz
 endif
 #	-lext2fs
 

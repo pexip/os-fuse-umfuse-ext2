@@ -82,6 +82,7 @@ struct extfs_data {
 	char *options;
 	char *device;
 	char *volname;
+	char *ext2_options;
 	ext2_filsys e2fs;
 };
 
@@ -248,5 +249,9 @@ int op_ftruncate(const char *path, off_t length, struct fuse_file_info *fi);
 int op_link (const char *source, const char *dest);
 
 int op_rename (const char *source, const char *dest);
+
+/* IO management */
+extern io_manager vmdk_io_manager;
+extern int vmdk_probe (const char *path);
 
 #endif /* FUSEEXT2_H_ */

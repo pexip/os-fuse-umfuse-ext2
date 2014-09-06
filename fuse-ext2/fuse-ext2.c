@@ -234,6 +234,18 @@ static char * parse_mount_options (const char *orig_opts, struct extfs_data *opt
 #if __FreeBSD__ == 10
 			strcat(ret, "force,");
 #endif
+		} else if (!strcmp(opt, "offset")) { /* Byte offset in device */
+			if (!val) {
+				debugf_main("'offset' option must have value");
+				goto err_exit;
+			}
+			if (opts->ext2_options)
+				if (strappend(&opts->ext2_options, "&"))
+					goto err_exit;
+			if (strappend(&opts->ext2_options, "offset="))
+				goto err_exit;
+			if (strappend(&opts->ext2_options, val))
+				goto err_exit;
 		} else { /* Probably FUSE option. */
 			strcat(ret, opt);
 			if (val) {
@@ -343,15 +355,15 @@ int main (int argc, char *argv[])
 		goto err_out;
 	}
 
-	if (do_probe(&opts) != 0) {
-		debugf_main("Probe failed");
-		err = -4;
-		goto err_out;
-	}
-
 	parsed_options = parse_mount_options(opts.options ? opts.options : "", &opts);
 	if (!parsed_options) {
 		err = -2;
+		goto err_out;
+	}
+
+	if (do_probe(&opts) != 0) {
+		debugf_main("Probe failed");
+		err = -4;
 		goto err_out;
 	}
 
@@ -386,5 +398,6 @@ err_out:
 	free(opts.options);
 	free(opts.device);
 	free(opts.volname);
+	free(opts.ext2_options);
 	return err;
 }

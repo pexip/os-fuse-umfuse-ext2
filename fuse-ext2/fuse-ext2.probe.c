@@ -44,12 +44,13 @@ static int parse_options (int argc, char *argv[], struct extfs_data *opts)
 {
 	int c;
 
-	static const char *sopt = "-rwd";
+	static const char *sopt = "-rwdo";
 	static const struct option lopt[] = {
-		{ "readonly",	 no_argument,	NULL, 'r' },
-		{ "readwrite",	 no_argument,	NULL, 'w' },
-		{ "debug",       no_argument,   NULL, 'd' },
-		{ NULL,		 0,		NULL,  0  }
+		{ "readonly",	 no_argument,	        NULL, 'r' },
+		{ "readwrite",	 no_argument,	        NULL, 'w' },
+		{ "debug",       no_argument,           NULL, 'd' },
+		{ "offset",      required_argument,     NULL, 'o' },
+		{ NULL,		 0,		        NULL,  0  }
 	};
 
 	opterr = 0; /* We'll handle the errors, thank you. */
@@ -85,6 +86,18 @@ static int parse_options (int argc, char *argv[], struct extfs_data *opts)
 				break;
 			case 'd':
 				opts->debug = 1;
+				break;
+			case 'o':
+				if (!opts->ext2_options) {
+					opts->ext2_options = malloc(strlen("offset=") + strlen(optarg) + 1);
+					if (!opts->ext2_options)
+						return -1;
+					memcpy(opts->ext2_options, "offset=", strlen("offset="));
+					strcat(opts->ext2_options, optarg);
+				} else {
+					debugf_main("Offset must be specified only once");
+					return -1;
+				}
 				break;
 			default:
 				debugf_main("Unknown option '%s'", argv[optind - 1]);
@@ -131,5 +144,6 @@ err_out:
 	free(opts.device);
 	free(opts.volname);
 	free(opts.options);
+	free(opts.ext2_options);
 	return err;
 }
