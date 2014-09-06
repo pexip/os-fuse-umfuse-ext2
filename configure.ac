@@ -1,4 +1,4 @@
-AC_INIT([fuse-umfuse-ext2], [0.4], [renzo@cs.unibo.it])
+AC_INIT([fuse-umfuse-ext2], [0.4+pexip1], [packaging@pexip.com])
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([-Wall -Werror foreign dist-bzip2])
 AC_CONFIG_HEADER([config.h])
@@ -139,6 +139,7 @@ AC_CHECK_FUNCS([	\
 
 # Checks for libraries
 AC_CHECK_LIB([fuse], [fuse_main], [FUSE_LIBS="-lfuse"], [AC_MSG_ERROR([Can't find libfuse, please install it])])
+AC_CHECK_LIB([z], [deflate], [], [AC_MSG_ERROR([Can't find zlib, please install it])])
 
 AC_MSG_CHECKING([if FUSE on this system is too new for us])
 AC_EGREP_CPP([fuse_version_yes], [
@@ -154,6 +155,14 @@ fuse_version_yes
 AC_CHECK_LIB([ext2fs], [ext2fs_open], [],  [AC_MSG_ERROR([Can't find libext2fs, please install it])])
 
 AC_CHECK_LIB([ext2fs], [ext2fs_file_set_size2], [disablefileio=yes], [])
+
+PKG_CHECK_MODULES(CHECK, [check >= 0.9.4], [HAVE_CHECK=yes], [HAVE_CHECK=no])
+AM_CONDITIONAL(HAVE_CHECK, test x$HAVE_CHECK = xyes)
+AC_SUBST(CHECK_CFLAGS)
+AC_SUBST(CHECK_LIBS)
+
+AC_PATH_PROG(VALGRIND_PATH, valgrind, no)
+AM_CONDITIONAL(HAVE_VALGRIND, test ! "x$VALGRIND_PATH" = "xno")
 
 # Check extra parameters
 AC_ARG_ENABLE([debug],
@@ -172,6 +181,18 @@ DEBUG_CMT=
 echo "Enabling debug support by default"
 	AC_DEFINE(ENABLE_DEBUG, 1, [Define to 1 if you want 'debug' support.])
 )
+
+AC_ARG_ENABLE([gcov],
+		AS_HELP_STRING([--enable-gcov],[enable coverage]),
+		enable_gcov=$enableval,
+		enable_gcov=no)
+if test "x$enable_gcov" = "xyes" ; then
+	GCOV_CFLAGS="-O0 -fprofile-arcs -ftest-coverage"
+	GCOV_LIBS=-lgcov
+	AC_SUBST(GCOV_CFLAGS)
+	AC_SUBST(GCOV_LIBS)
+fi
+AM_CONDITIONAL(HAVE_GCOV, test "x$enable_gcov" = "xyes")
 
 AC_ARG_ENABLE([swapfs],
 [  --disable-swapfs    	  disable support of legacy byte-swapped filesystems],
@@ -215,6 +236,7 @@ AM_CONDITIONAL(LINUX, test "$arch" = linux)
 AC_CONFIG_FILES([
 	Makefile
 	fuse-ext2/Makefile
+	tests/Makefile
 ])
 
 AC_OUTPUT

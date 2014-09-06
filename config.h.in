@@ -58,6 +58,9 @@
 /* Define to 1 if you have the `ext2fs' library (-lext2fs). */
 #undef HAVE_LIBEXT2FS
 
+/* Define to 1 if you have the `z' library (-lz). */
+#undef HAVE_LIBZ
+
 /* Define to 1 if you have the <linux/fd.h> header file. */
 #undef HAVE_LINUX_FD_H
 

@@ -25,12 +25,17 @@ void * op_init (struct fuse_conn_info *conn)
 	errcode_t rc;
 	struct fuse_context *cntx=fuse_get_context();
 	struct extfs_data *e2data=cntx->private_data;
+	io_manager manager = unix_io_manager;
 
 	debugf("enter %s", e2data->device);
 
-	rc = ext2fs_open(e2data->device, 
+	if (vmdk_probe(e2data->device)) {
+		manager = vmdk_io_manager;
+	}
+
+	rc = ext2fs_open2(e2data->device, e2data->ext2_options,
 			(e2data->readonly) ? 0 : EXT2_FLAG_RW,
-			0, 0, unix_io_manager, &e2data->e2fs);
+			0, 0, manager, &e2data->e2fs);
 	if (rc) {
 		debugf("Error while trying to open %s", e2data->device);
 		exit(1);
