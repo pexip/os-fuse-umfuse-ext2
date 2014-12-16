@@ -127,19 +127,21 @@ int op_rename(const char *source, const char *dest)
 	}
 
 	src_inode = vnode2inode(src_vnode);
-	dest_inode = vnode2inode(dest_vnode);
 
-	/* If  oldpath  and  newpath are existing hard links referring to the same
-		 file, then rename() does nothing, and returns a success status. */
-	if (destrt == 0 && src_ino == dest_ino) {
-		rt = 0;
-		goto out;
-	}
-
-	/* error cases */
-	/* EINVAL The  new  pathname  contained a path prefix of the old:
-		 this should be checked by fuse */
+	/* Step 1: if destination exists: delete it */
 	if (destrt == 0) {
+		dest_inode = vnode2inode(dest_vnode);
+
+		/* If  oldpath  and  newpath are existing hard links referring to the same
+			 file, then rename() does nothing, and returns a success status. */
+		if (src_ino == dest_ino) {
+			rt = 0;
+			goto out;
+		}
+
+		/* error cases */
+		/* EINVAL The  new  pathname  contained a path prefix of the old:
+			 this should be checked by fuse */
 		if (LINUX_S_ISDIR(dest_inode->i_mode)) {
 			/* EISDIR newpath  is  an  existing directory, but oldpath is not a direc‐
 				 tory. */
@@ -163,10 +165,7 @@ int op_rename(const char *source, const char *dest)
 			rt = -ENOTDIR;
 			goto out;
 		}
-	}
 
-	/* Step 1: if destination exists: delete it */
-	if (destrt == 0) {
 		/* unlink in both cases */
 		rc = ext2fs_unlink(e2fs, d_dest_ino, r_dest, dest_ino, 0);
 		if (rc) {
