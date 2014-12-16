@@ -1,3 +1,9 @@
+fuse-umfuse-ext2 (0.4+pexip2-1) pexip; urgency=low
+
+  * New upstream release.
+
+ -- John-Mark Bell <jmb@pexip.com>  Tue, 16 Dec 2014 12:16:27 +0000
+
 fuse-umfuse-ext2 (0.4+pexip1-1) pexip; urgency=low
 
   * Package Pexip fork.
