@@ -1,3 +1,9 @@
+fuse-umfuse-ext2 (0.4+pexip2-2) pexip; urgency=low
+
+  * No-change rebuild
+
+ -- John-Mark Bell <jmb@pexip.com>  Sat, 15 Apr 2017 11:52:01 +0100
+
 fuse-umfuse-ext2 (0.4+pexip2-1) pexip; urgency=low
 
   * New upstream release.
