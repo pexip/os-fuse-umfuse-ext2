@@ -37,7 +37,7 @@ Description: View-OS in user space - ext2 module for UMFUSE
 
 Package: fuseext2
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, fuse-utils
+Depends: ${shlibs:Depends}, ${misc:Depends}, fuse
 Description: File System in User Space - Module for ext2
  This module for the FUSE kernel service allows any FUSE-enabled user to mount
  Second Extended file systems, e.g. disk images.
