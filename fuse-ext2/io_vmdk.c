@@ -992,7 +992,8 @@ vmdk_write_grain_to_disk(struct vmdk_private_data *data,
 static errcode_t
 vmdk_try_write_data(struct vmdk_private_data *data,
 		    struct vmdk_modified_grain *grain,
-		    struct vmdk_gap *gap_list)
+		    struct vmdk_gap *gap_list,
+		    int forwards)
 {
 	struct vmdk_gap *gap;
 	ext2_loff_t size;
@@ -1010,7 +1011,18 @@ vmdk_try_write_data(struct vmdk_private_data *data,
 		if (grain->new_location >= gap->location) {
 			if (grain->new_location + size <= 
 					gap->location + gap->size) {
-				/* Found it: emit grain */
+				if (grain->new_location != gap->location &&
+						(grain->new_location + size !=
+						 gap->location + gap->size)) {
+					/* Grain would divide gap, rather than
+					 * truncate it (from either end).
+					 * Skip this write attempt, and try
+					 * again later.
+					 */
+					break;
+				}
+
+				/* Emit grain */
 				retval = vmdk_write_grain_to_disk(data, grain);
 				if (retval) {
 					return retval;
@@ -1018,7 +1030,10 @@ vmdk_try_write_data(struct vmdk_private_data *data,
 
 				/* Update gap size/location */
 				gap->size -= size;
-				if (grain->new_location == gap->location) {
+				/* Leave empty gaps closest to the end of the
+				 * direction of travel */
+				if (grain->new_location == gap->location &&
+						(gap->size > 0 || forwards)) {
 					gap->location = grain->new_location + 
 							size;
 				}
@@ -1037,7 +1052,9 @@ vmdk_try_write_data(struct vmdk_private_data *data,
 }
 
 static errcode_t
-vmdk_emit_change_list(struct vmdk_private_data *data, struct vmdk_gap *gap_list)
+vmdk_emit_change_list(struct vmdk_private_data *data,
+		      struct vmdk_gap *gap_list,
+		      int forwards)
 {
 	struct vmdk_modified_grain *grain;
 	errcode_t retval = 0;
@@ -1059,7 +1076,8 @@ vmdk_emit_change_list(struct vmdk_private_data *data, struct vmdk_gap *gap_list)
 				if (grain->moved != 0) {
 					retval = vmdk_try_write_data(data,
 								     grain,
-								     gap_list);
+								     gap_list,
+								     forwards);
 					if (retval) {
 						return retval;
 					}
@@ -1341,7 +1359,7 @@ vmdk_write_change_list(struct vmdk_private_data *data)
 		vmdk_reverse_change_list(data);
 	}
 
-	retval = vmdk_emit_change_list(data, gap_list);
+	retval = vmdk_emit_change_list(data, gap_list, amount_to_move <= 0);
 	if (retval) {
 		vmdk_destroy_gap_list(gap_list);
 		return retval;
