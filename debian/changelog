@@ -1,3 +1,9 @@
+fuse-umfuse-ext2 (0.4+pexip3-1) pexip; urgency=low
+
+  * New upstream release
+
+ -- John-Mark Bell <jmb@pexip.com>  Tue, 05 May 2020 18:15:25 +0100
+
 fuse-umfuse-ext2 (0.4+pexip2-2) pexip; urgency=low
 
   * Depend on fuse, not fuse-utils
