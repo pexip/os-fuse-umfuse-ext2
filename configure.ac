@@ -1,4 +1,4 @@
-AC_INIT([fuse-umfuse-ext2], [0.4+pexip2], [packaging@pexip.com])
+AC_INIT([fuse-umfuse-ext2], [0.4+pexip3], [packaging@pexip.com])
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([-Wall -Werror foreign dist-bzip2])
 AC_CONFIG_HEADER([config.h])

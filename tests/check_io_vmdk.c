@@ -164,6 +164,19 @@ static const struct disk_descriptor complex_disk_descriptor_move_write = {
 	}
 };
 
+static const struct disk_descriptor complex_disk_descriptor_shrink_first_grow_penultimate = {
+	.capacity = 2 * GT_COVERAGE,
+	.nblocks = 7,
+	.blocks = {
+		{                 GT_COVERAGE,  4096, 12 },
+		{    GRAIN_SIZE + GT_COVERAGE,   512,  9 },
+		{  2*GRAIN_SIZE + GT_COVERAGE,  1024, 10 },
+		{  4*GRAIN_SIZE + GT_COVERAGE,  2048, 11 },
+		{  8*GRAIN_SIZE + GT_COVERAGE,  1024, 10 },
+		{ 16*GRAIN_SIZE + GT_COVERAGE, 16384, 14 },
+		{ 32*GRAIN_SIZE + GT_COVERAGE,   512,  9 },
+	}
+};
 
 errcode_t
 test_ext2fs_get_mem(unsigned long size, void *ptr)
@@ -784,6 +797,23 @@ START_TEST(test_io_vmdk_move_write_dependency)
 }
 END_TEST
 
+START_TEST(test_io_vmdk_shrink_first_grow_penultimate)
+{
+	/* Shrink the first block from 8192 to 4096 */
+	modify_block(                GT_COVERAGE, 12);
+	/* Leave the second block unmodified */
+	/* modify_block(   GRAIN_SIZE + GT_COVERAGE,  9); */
+	/* Modify subsequent blocks, retaining their size */
+	modify_block( 2*GRAIN_SIZE + GT_COVERAGE, 10);
+	modify_block( 4*GRAIN_SIZE + GT_COVERAGE, 11);
+	modify_block( 8*GRAIN_SIZE + GT_COVERAGE, 10);
+	/* Grow the penultimate block from 4096 to 16384 */
+	modify_block(16*GRAIN_SIZE + GT_COVERAGE, 14);
+	/* Modify last block, retaining its size */
+	modify_block(32*GRAIN_SIZE + GT_COVERAGE, 9);
+	flush_and_assert(&complex_disk_descriptor_shrink_first_grow_penultimate);
+}
+END_TEST
 
 static void
 test_io_vmdk_create_suite(SRunner *sr)
@@ -844,6 +874,7 @@ test_io_vmdk_create_suite(SRunner *sr)
 				  teardown_disk_context);
 	tcase_add_test(tc, test_io_vmdk_complex);
 	tcase_add_test(tc, test_io_vmdk_move_write_dependency);
+	tcase_add_test(tc, test_io_vmdk_shrink_first_grow_penultimate);
 	suite_add_tcase(s, tc);
 
 	srunner_add_suite(sr, s);
