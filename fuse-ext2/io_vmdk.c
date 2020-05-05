@@ -17,6 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -154,10 +155,39 @@ struct vmdk_private_data {
 	uint32_t *grain_directory;
 
 	struct vmdk_modified_grain *change_list;
+
+#ifdef VMDKDEBUG
+	FILE *logfile;
+#endif
 };
 
 static struct struct_io_manager struct_vmdk_manager;
 io_manager vmdk_io_manager = &struct_vmdk_manager;
+
+#ifdef VMDKDEBUG
+static inline void vmdkdebug_printf (const char *function, char *file,
+		int line, struct vmdk_private_data *data, const char *fmt, ...)
+{
+	va_list args;
+	if (data->logfile != NULL) {
+		FILE *outf = data->logfile;
+#ifdef UNITTEST
+		outf = stderr;
+#endif
+		fprintf(outf, "%s: ", PACKAGE);
+		va_start(args, fmt);
+		vfprintf(outf, fmt, args);
+		va_end(args);
+		fprintf(outf, " [%s (%s:%d)]\n", function, file, line);
+	}
+}
+
+#define vmdkdebugf(data, a...) { \
+	vmdkdebug_printf(__FUNCTION__, __FILE__, __LINE__, data, ##a); \
+}
+#else
+#define vmdkdebugf(data, a...) do {} while(0)
+#endif
 
 
 static errcode_t
@@ -571,6 +601,14 @@ vmdk_prepare_change_list_for_write(struct vmdk_private_data *data,
 	errcode_t retval = 0;
 	ext2_loff_t total_change = 0;
 
+	vmdkdebugf(data, "Modified grains (pre-prepare):");
+	for (grain = data->change_list; grain != NULL; grain = grain->next) {
+		vmdkdebugf(data, "  [%zx+%zu] -> [%zx+%zu+%zu]",
+				grain->old_location, grain->old_size,
+				grain->new_location, grain->new_size,
+				grain->bytes_following);
+	}
+
 	for (grain = data->change_list; grain != NULL; grain = grain->next) {
 		uint32_t size;
 		unsigned long new_size = compressBound(data->grain_coverage);
@@ -707,6 +745,24 @@ vmdk_prepare_change_list_for_write(struct vmdk_private_data *data,
 
 	*accumulated_change = total_change;
 	*gaps = gap_list;
+
+	vmdkdebugf(data, "Modified grains (post-prepare):");
+	for (grain = data->change_list; grain != NULL; grain = grain->next) {
+		vmdkdebugf(data, "  [%zx+%zu] -> [%zx+%zu+%zu] (gt_follows: %d)",
+				grain->old_location, grain->old_size,
+				grain->new_location, grain->new_size,
+				grain->bytes_following, grain->gt_follows);
+	}
+	vmdkdebugf(data, "Gaps:");
+	for (gap_last = gap_list; gap_last != NULL; gap_last = gap_last->next) {
+		vmdkdebugf(data, "  [%zx+%zu] -> [%zx+%zu]",
+				gap_last->orig_location, gap_last->orig_size,
+				gap_last->location, gap_last->size);
+	}
+	vmdkdebugf(data, "amount_to_move: %zu", total_change);
+	vmdkdebugf(data, "grain_table_size: %zu", data->grain_table_size);
+	vmdkdebugf(data, "grain_table_coverage: %zu", data->grain_table_coverage);
+	vmdkdebugf(data, "grain_coverage: %zu", data->grain_coverage);
 
 error:
 	if (retval) {
@@ -1378,6 +1434,14 @@ vmdk_open(const char *name, int flags, io_channel *channel)
 		return retval;
 	}
 
+#ifdef VMDKDEBUG
+	/* Don't care if this fails */
+	data->logfile = fopen("/tmp/fuse-ext2.log", "w");
+	if (data->logfile != NULL) {
+		setvbuf(data->logfile, NULL, _IONBF, 0);
+	}
+#endif
+
 	*channel = io;
 	return 0;
 }
@@ -1419,6 +1483,12 @@ vmdk_close(io_channel channel)
 	if (close(data->dev) < 0) {
 		retval = errno;
 	}
+
+#ifdef VMDKDEBUG
+	if (data->logfile != NULL) {
+		fclose(data->logfile);
+	}
+#endif
 
 	ext2fs_free_mem(&data->compressed_buf);
 	ext2fs_free_mem(&data->grain_directory);
