@@ -1,3 +1,9 @@
+fuse-umfuse-ext2 (0.4+pexip3-2) pexip; urgency=medium
+
+  * Rebuild in buster environment
+
+ -- Steve McIntyre <steve.mcintyre@pexip.com>  Wed, 15 Jul 2020 18:31:23 +0000
+
 fuse-umfuse-ext2 (0.4+pexip3-1) pexip; urgency=low
 
   * New upstream release
