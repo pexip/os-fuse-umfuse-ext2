@@ -31,6 +31,7 @@
 #include <assert.h>
 #include <dirent.h>
 #include <errno.h>
+#include <sys/sysmacros.h>
 
 #include <fuse.h>
 #include <ext2fs/ext2fs.h>
