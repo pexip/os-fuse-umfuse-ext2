@@ -1,3 +1,9 @@
+fuse-umfuse-ext2 (0.4+pexip3-5) pexip-bullseye; urgency=medium
+
+  * Main bullseye build
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Fri, 24 Jun 2022 13:55:18 +0100
+
 fuse-umfuse-ext2 (0.4+pexip3-4) pexip; urgency=medium
 
   * Initial bullseye build
