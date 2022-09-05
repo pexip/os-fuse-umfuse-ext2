@@ -1,3 +1,9 @@
+fuse-umfuse-ext2 (0.4+pexip3-5pexip1) pexip-bullseye; urgency=medium
+
+  * Bullseye rebuild for ARM64 inclusion
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Mon, 05 Sep 2022 10:31:43 +0100
+
 fuse-umfuse-ext2 (0.4+pexip3-5) pexip-bullseye; urgency=medium
 
   * Main bullseye build
