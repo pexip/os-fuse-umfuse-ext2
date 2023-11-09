@@ -9,7 +9,7 @@ Vcs-Browser: http://svn.debian.org/wsvn/pkg-vsquare/fuse-umfuse-ext2/trunk/
 Standards-Version: 3.9.3
 Homepage: http://view-os.sourceforge.net
 Section: misc
-XS-Pexip-Upstream: http://deb.debian.org/debian/ bullseye
+XS-Pexip-Upstream: http://deb.debian.org/debian/ bookworm
 
 Package: umview-mod-umfuseext2
 Architecture: i386 amd64 powerpc ppc64
