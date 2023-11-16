@@ -1,3 +1,9 @@
+fuse-umfuse-ext2 (0.4+pexip3-5pexip2) pexip-bookworm; urgency=medium
+
+  * Initial bookworm build
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Thu, 16 Nov 2023 09:59:34 +0000
+
 fuse-umfuse-ext2 (0.4+pexip3-5pexip1) pexip-bullseye; urgency=medium
 
   * Bullseye rebuild for ARM64 inclusion
