@@ -1,3 +1,9 @@
+fuse-umfuse-ext2 (0.4+pexip3-5pexip3) pexip-bookworm; urgency=medium
+
+  * Bookworm build for product distribution
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Sat, 09 Dec 2023 22:52:27 +0000
+
 fuse-umfuse-ext2 (0.4+pexip3-5pexip2) pexip-bookworm; urgency=medium
 
   * Initial bookworm build
