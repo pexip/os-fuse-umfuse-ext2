@@ -1,3 +1,9 @@
+fuse-umfuse-ext2 (0.4+pexip3-5+pexip24u4) pexip-bookworm; urgency=medium
+
+  * New versioning scheme
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Thu, 01 Feb 2024 15:58:10 +0000
+
 fuse-umfuse-ext2 (0.4+pexip3-5pexip3) pexip-bookworm; urgency=medium
 
   * Bookworm build for product distribution
