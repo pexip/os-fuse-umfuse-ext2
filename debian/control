@@ -3,37 +3,12 @@ Priority: optional
 Maintainer: Pexip AS <packaging@pexip.com>
 XSBC-Original-Maintainer: Debian VSquare Team <pkg-vsquare-devel@lists.alioth.debian.org>
 XSBC-Original-Uploaders: Ludovico Gardenghi <garden@debian.org>, Guido Trotter <ultrotter@debian.org>, Filippo Giunchedi <filippo@debian.org>
-Build-Depends: debhelper (>= 5), libumlib-dev, libfuse-dev, e2fslibs-dev, cdbs, zlib1g-dev | libz-dev, check, pkg-config
+Build-Depends: debhelper (>= 5), libfuse-dev, e2fslibs-dev, cdbs, zlib1g-dev | libz-dev, check, pkg-config
 Vcs-Svn: svn://svn.debian.org/pkg-vsquare/fuse-umfuse-ext2/trunk
 Vcs-Browser: http://svn.debian.org/wsvn/pkg-vsquare/fuse-umfuse-ext2/trunk/
 Standards-Version: 3.9.3
 Homepage: http://view-os.sourceforge.net
 Section: misc
-
-Package: umview-mod-umfuseext2
-Architecture: i386 amd64 powerpc ppc64
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: View-OS in user space - ext2 module for UMFUSE
- View-OS is a novel approach to the process/kernel interface.  The semantics of
- each system call can be assigned process by process giving the user the right
- to decide which view of the system each process has to join.  Each process can
- "see" a different file system structure, networking resources, processor,
- devices.  Moreover some of the resources can be provided by the user
- him/herself, thus these resource can be private to the single process and are
- not known a priori by the system.  Groups of processes can share the same view
- but this is just an optimization to share management methods.
- .
- For more information, see http://wiki.virtualsquare.org
- .
- UMView is a user-mode implementation of View-OS.  Processes are run with a
- controlling daemon that captures all the system calls (at present using the
- ptrace() system call) and uses dynamically loadable modules to change their
- semantic.
- .
- This package contains a sub-module for umfuse.  umfuse is contained in the
- main UMView package and allows almost complete source compatibility with FUSE
- modules.  umfuseext2 can be used to mount Extended 2 file system images
- inside an UMView instance.
 
 Package: fuseext2
 Architecture: any

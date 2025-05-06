@@ -6,14 +6,17 @@ include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/autotools.mk
 
 common-install-prehook-arch common-install-prehook-indep::
-	mkdir -p debian/tmp/sbin
+	mkdir -p debian/tmp/usr/sbin
 
 install/fuseext2::
+	# Fix the broken symlink installed by the Makefile
+	rm -f debian/fuseext2/usr/sbin/mount.fuse-ext2
 	dh_link -pfuseext2 /usr/share/man/man1/fuse-ext2.1 /usr/share/man/man8/mount.fuse-ext2.8
-	dh_link -pfuseext2 /usr/bin/fuse-ext2 /sbin/mount.fuse-ext2
+	dh_link -pfuseext2 /usr/bin/fuse-ext2 /usr/sbin/mount.fuse-ext2
 	# Compatibility symlinks for versions up to 0.3.
 	dh_link -pfuseext2 /usr/bin/fuse-ext2 /usr/bin/fuseext2
-	dh_link -pfuseext2 /sbin/mount.fuse-ext2 /sbin/mount.fuseext2
+	dh_link -pfuseext2 /usr/sbin/mount.fuse-ext2 /usr/sbin/mount.fuseext2
 	dh_link -pfuseext2 /usr/share/man/man1/fuse-ext2.1 /usr/share/man/man1/fuseext2.1
 	dh_link -pfuseext2 /usr/share/man/man8/mount.fuse-ext2.8 /usr/share/man/man8/mount.fuseext2.8
+	dh_link -pfuseext2 /usr/bin/fuse-ext2 /usr/sbin/mount.fuse-ext2
 	dh_compress -pfuseext2
