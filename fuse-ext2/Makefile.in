@@ -1940,7 +1940,7 @@ install-data-hook:
 #endif
 @LINUX_TRUE@install-exec-local:
 @LINUX_TRUE@	$(INSTALL) -d "$(DESTDIR)/usr/sbin"
-@LINUX_TRUE@	$(LN_S) -f "$(DESTDIR)/$(bindir)/fuse-ext2" "$(DESTDIR)/sbin/mount.fuse-ext2"
+@LINUX_TRUE@	$(LN_S) -f "$(DESTDIR)/$(bindir)/fuse-ext2" "$(DESTDIR)/$(sbindir)/mount.fuse-ext2"
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
